@@ -26,6 +26,9 @@ class Profile(models.Model):
     first_name = models.CharField(max_length=60)
     last_name = models.CharField(max_length=60, null=True)
     birth_date = models.DateField()
+    sex = models.BooleanField()
+    phone = models.CharField(max_length=12)
+    doi = models.CharField(max_length=15)
     register_date = models.DateField(auto_now_add=True)
 
     def __str__(self):
@@ -47,12 +50,9 @@ class Doctor(models.Model):
         db_table = 'doctors'
 
 
-class Patients(models.Model):
+class Patient(models.Model):
     patients = models.OneToOneField(Profile, auto_created=True, on_delete=models.CASCADE,
                                     primary_key=True, serialize=False)
-    sex = models.BooleanField()
-    phone = models.CharField(max_length=12)
-    doi = models.CharField(max_length=15)
     height = models.FloatField(null=True)
     weight = models.FloatField(null=True)
     arm = models.FloatField(null=True)
@@ -62,7 +62,7 @@ class Patients(models.Model):
     tmb = models.FloatField(null=True)
 
     def __str__(self):
-        return self.doi
+        return self.patients.doi
 
     class Meta:
         db_table = 'patients'
