@@ -1,5 +1,4 @@
 from django.http import Http404
-from django.shortcuts import render
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 
@@ -8,11 +7,17 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from accounts.models import User
-from accounts.serializers import UserSerializer, ProfileSerializer
+from accounts.models import User, Profile
+from accounts.serializers import UserSerializer, ProfileSerializer, DoctorSerializer, PatientSerializer
 
 users_response = openapi.Response('Users description', UserSerializer(many=True))
 user_response = openapi.Response('User description', UserSerializer)
+profiles_response = openapi.Response('Profiles description', ProfileSerializer(many=True))
+profile_response = openapi.Response('Profile description', ProfileSerializer)
+doctors_response = openapi.Response('Doctors description', DoctorSerializer(many=True))
+doctor_response = openapi.Response('Doctor description', DoctorSerializer)
+patients_response = openapi.Response('Patients description', PatientSerializer(many=True))
+patient_response = openapi.Response('Patient description', PatientSerializer)
 
 
 @swagger_auto_schema(methods=['post'], request_body=UserSerializer)
@@ -44,4 +49,30 @@ def user_detail(request, user_id):
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
-        return  Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@swagger_auto_schema(method='get', responses={200: profiles_response})
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def profiles_list(request):
+    if request.method == 'GET':
+        profiles = Profile.objects.all()
+        serializer = ProfileSerializer(profiles, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+@swagger_auto_schema(methods=['post'], request_body=ProfileSerializer, responses={201: profile_response})
+@api_view(['POST'])
+def create_profiles(request, user_id):
+    if request.method == 'POST':
+        try:
+            User.objects.get(id=user_id)
+        except:
+            raise Http404
+
+        serializer = ProfileSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(user_id=user_id)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

@@ -29,6 +29,7 @@ class Profile(models.Model):
     sex = models.BooleanField()
     phone = models.CharField(max_length=12)
     doi = models.CharField(max_length=15)
+    type = models.CharField(max_length=60, null=True)
     register_date = models.DateField(auto_now_add=True)
 
     def __str__(self):
