@@ -40,8 +40,8 @@ class Profile(models.Model):
 
 
 class Doctor(models.Model):
-    doctors = models.OneToOneField(Profile, auto_created=True, on_delete=models.CASCADE,
-                                   primary_key=True, serialize=False)
+    doctor = models.OneToOneField(Profile, auto_created=True, on_delete=models.CASCADE,
+                                  primary_key=True, serialize=False)
     license_number = models.CharField(max_length=50)
 
     def __str__(self):
@@ -52,8 +52,8 @@ class Doctor(models.Model):
 
 
 class Patient(models.Model):
-    patients = models.OneToOneField(Profile, auto_created=True, on_delete=models.CASCADE,
-                                    primary_key=True, serialize=False)
+    patient = models.OneToOneField(Profile, auto_created=True, on_delete=models.CASCADE,
+                                   primary_key=True, serialize=False)
     height = models.FloatField(null=True)
     weight = models.FloatField(null=True)
     arm = models.FloatField(null=True)

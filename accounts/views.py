@@ -1,3 +1,6 @@
+from http.client import responses
+
+
 from django.http import Http404
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
@@ -7,7 +10,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from accounts.models import User, Profile
+from accounts.models import User, Profile, Patient
 from accounts.serializers import UserSerializer, ProfileSerializer, DoctorSerializer, PatientSerializer
 
 users_response = openapi.Response('Users description', UserSerializer(many=True))
@@ -75,4 +78,43 @@ def create_profiles(request, user_id):
         if serializer.is_valid():
             serializer.save(user_id=user_id)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@swagger_auto_schema(method='get', request_body=ProfileSerializer, responses={302: profile_response})
+@swagger_auto_schema(method='patch', request_body=ProfileSerializer, responses={200: profiles_response})
+@api_view(['GET', 'PATCH', 'DELETE'])
+def profile_detail(request, profile_id):
+    try:
+        profile = Profile.objects.get(user_id=profile_id)
+    except Profile.DoesNotExist:
+        raise Http404
+
+    if request.method == 'GET':
+        serializer = ProfileSerializer(profile)
+        return Response(serializer.data, status=status.HTTP_302_FOUND)
+    elif request.method == 'PATCH':
+        serializer = ProfileSerializer(profile, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    elif request.method == 'DELETE':
+        profile.delete()
+        return Response(status=status.HTTP_200_OK)
+
+
+@swagger_auto_schema(method='patch', request_body=PatientSerializer, responses={200: patient_response})
+@api_view(['PATCH'])
+def patient_detail(request, patient_id):
+    try:
+        patient = Patient.objects.get(patient_id=patient_id)
+    except Patient.DoesNotExist:
+        raise Http404
+
+    if request.method == 'PATCH':
+        serializer = PatientSerializer(patient, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
