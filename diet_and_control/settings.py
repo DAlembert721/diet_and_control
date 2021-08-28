@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'accounts.apps.AccountsConfig',
+    'diets.apps.DietsConfig',
     'rest_framework',
     'corsheaders',
     'rest_framework_swagger',
