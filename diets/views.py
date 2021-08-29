@@ -10,23 +10,24 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from accounts.models import Patient, Doctor
+from diets.models import Treatment
 from diets.serializers import TreatmentSerializer
 
 treatments_response = openapi.Response('Treatments description', TreatmentSerializer(many=True))
 treatment_response = openapi.Response('Treatment description', TreatmentSerializer)
 
 
-@swagger_auto_schema(methods=['post'], request_body=TreatmentSerializer,responses={201: treatment_response})
+@swagger_auto_schema(methods=['post'], request_body=TreatmentSerializer, responses={201: treatment_response})
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def create_treatment(request, doctor_id, patient_id):
     try:
-        Patient.objects.get(patient_id=patient_id)
+        Patient.objects.get(patients_id=patient_id)
     except Patient.DoesNotExist:
         raise Http404
 
     try:
-        Doctor.objects.get(doctor_id=doctor_id)
+        Doctor.objects.get(doctors_id=doctor_id)
     except Doctor.DoesNotExist:
         raise Http404
 
@@ -36,3 +37,17 @@ def create_treatment(request, doctor_id, patient_id):
             serializer.save(patient_id=patient_id, doctor_id=doctor_id)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@swagger_auto_schema(methods=['get'], responses={302: treatment_response})
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def treatment_detail(request, treatment_id):
+    try:
+        treatment = Treatment.objects.get(id=treatment_id)
+    except Treatment.DoesNotExist:
+        raise Http404
+
+    if request.method == 'GET':
+        serializer = TreatmentSerializer(treatment)
+        return Response(serializer.data, status=status.HTTP_302_FOUND)

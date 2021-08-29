@@ -5,15 +5,28 @@ from diets.models import Treatment, Menu, Schedule, Meal
 from diets.utils.generator import menus_generator
 
 
-class TreatmentSerializer(serializers.ModelSerializer):
-    patient_id = serializers.IntegerField(source='patient.id', read_only=True)
-    doctor_id = serializers.IntegerField(source='doctor.id', read_only=True)
-    menus = serializers.SerializerMethodField(method_name='get_all_menus', read_only=True)
+class MealSerializer(serializers.ModelSerializer):
+    schedule_id = serializers.IntegerField(read_only=True)
 
-    @staticmethod
-    def get_all_menus(self):
-        menus = Menu.objects.filter(treatment=self)
-        return MenuSerializer(menus, many=True)
+    class Meta:
+        model = Meal
+        fields = ('id', 'name', 'description', 'carbohydrate',
+                  'fat', 'protein', 'recipe', 'schedule_id')
+
+
+class MenuSerializer(serializers.ModelSerializer):
+    treatment_id = serializers.IntegerField(read_only=True)
+    meals = MealSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Menu
+        fields = ('id', 'description', 'date', 'treatment_id', 'active', 'meals')
+
+
+class TreatmentSerializer(serializers.ModelSerializer):
+    patient_id = serializers.IntegerField(read_only=True)
+    doctor_id = serializers.IntegerField(read_only=True)
+    menus = MenuSerializer(source='menu_set', many=True, read_only=True)
 
     def create(self, validated_data):
         patient = Patient.objects.get(user=validated_data["patient_id"])
@@ -22,6 +35,7 @@ class TreatmentSerializer(serializers.ModelSerializer):
         validated_data["doctor"] = doctor
         treatment = Treatment.objects.create(**validated_data)
         menus_generator(treatment)
+        treatment = Treatment.objects.get(id=treatment.id)
         return treatment
 
     class Meta:
@@ -31,24 +45,10 @@ class TreatmentSerializer(serializers.ModelSerializer):
                   'patient_id', 'doctor_id', 'menus')
 
 
-class MenuSerializer(serializers.ModelSerializer):
-    treatment_id = serializers.IntegerField(source='treatment.id', read_only=True)
-
-    class Meta:
-        model = Menu
-        fields = ('id', 'description', 'date', 'treatment_id', 'active')
-
-
 class ScheduleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Schedule
         fields = ('id', 'name', 'hour')
 
 
-class MealSerializer(serializers.ModelSerializer):
-    schedule_id = serializers.IntegerField(source='schedule.id', read_only=True)
 
-    class Meta:
-        model = Meal
-        fields = ('id', 'name', 'description', 'carbohydrate',
-                  'fat', 'protein', 'recipe', 'schedule_id')

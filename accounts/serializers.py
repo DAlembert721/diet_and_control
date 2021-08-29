@@ -20,8 +20,8 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class ProfileSerializer(serializers.ModelSerializer):
-    user_email = serializers.CharField(source='user.email', read_only=True)
-    user_username = serializers.CharField(source='user.username', read_only=True)
+    user_email = serializers.CharField(read_only=True)
+    user_username = serializers.CharField(read_only=True)
 
     def create(self, validated_data):
         user = User.objects.get(id=validated_data["user_id"])
@@ -38,7 +38,7 @@ class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
         fields = ('user', 'first_name', 'last_name', 'birth_date', 'phone',
-                  'register_date', 'user_email', 'user_username', 'sex', 'doi')
+                  'register_date', 'user_email', 'user_username', 'sex', 'doi', 'type')
         read_only_fields = ('register_date', 'user')
 
 
