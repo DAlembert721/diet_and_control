@@ -6,17 +6,18 @@ from diets.utils.generator import menus_generator
 
 
 class TreatmentSerializer(serializers.ModelSerializer):
-    patient_id = serializers.IntegerField(source='patient.user.id', read_only=True)
-    doctor_id = serializers.IntegerField(source='doctor.user.id', read_only=True)
+    patient_id = serializers.IntegerField(source='patient.id', read_only=True)
+    doctor_id = serializers.IntegerField(source='doctor.id', read_only=True)
     menus = serializers.SerializerMethodField(method_name='get_all_menus', read_only=True)
 
     @staticmethod
     def get_all_menus(self):
-        return Menu.objects.filter(treatment=self)
+        menus = Menu.objects.filter(treatment=self)
+        return MenuSerializer(menus, many=True)
 
     def create(self, validated_data):
-        patient = Patient.objects.get(patient__user_id=validated_data["patient_id"])
-        doctor = Doctor.objects.get(doctor__user_id=validated_data["doctor_id"])
+        patient = Patient.objects.get(user=validated_data["patient_id"])
+        doctor = Doctor.objects.get(user=validated_data["doctor_id"])
         validated_data["patient"] = patient
         validated_data["doctor"] = doctor
         treatment = Treatment.objects.create(**validated_data)

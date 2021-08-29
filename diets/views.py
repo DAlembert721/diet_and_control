@@ -1,9 +1,38 @@
+from django.http import Http404
 from django.shortcuts import render
 
 # Create your views here.
 from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
+from rest_framework import status
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
+from accounts.models import Patient, Doctor
 from diets.serializers import TreatmentSerializer
 
 treatments_response = openapi.Response('Treatments description', TreatmentSerializer(many=True))
 treatment_response = openapi.Response('Treatment description', TreatmentSerializer)
+
+
+@swagger_auto_schema(methods=['post'], request_body=TreatmentSerializer,responses={201: treatment_response})
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def create_treatment(request, doctor_id, patient_id):
+    try:
+        Patient.objects.get(patient_id=patient_id)
+    except Patient.DoesNotExist:
+        raise Http404
+
+    try:
+        Doctor.objects.get(doctor_id=doctor_id)
+    except Doctor.DoesNotExist:
+        raise Http404
+
+    if request.method == 'POST':
+        serializer = TreatmentSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(patient_id=patient_id, doctor_id=doctor_id)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

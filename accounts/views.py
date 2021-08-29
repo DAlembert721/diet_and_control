@@ -67,6 +67,7 @@ def profiles_list(request):
 
 @swagger_auto_schema(methods=['post'], request_body=ProfileSerializer, responses={201: profile_response})
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def create_profiles(request, user_id):
     if request.method == 'POST':
         try:
@@ -81,9 +82,10 @@ def create_profiles(request, user_id):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-@swagger_auto_schema(method='get', request_body=ProfileSerializer, responses={302: profile_response})
+@swagger_auto_schema(method='get', responses={302: profile_response})
 @swagger_auto_schema(method='patch', request_body=ProfileSerializer, responses={200: profiles_response})
 @api_view(['GET', 'PATCH', 'DELETE'])
+@permission_classes([IsAuthenticated])
 def profile_detail(request, profile_id):
     try:
         profile = Profile.objects.get(user_id=profile_id)
@@ -106,6 +108,7 @@ def profile_detail(request, profile_id):
 
 @swagger_auto_schema(method='patch', request_body=PatientSerializer, responses={200: patient_response})
 @api_view(['PATCH'])
+@permission_classes([IsAuthenticated])
 def patient_detail(request, patient_id):
     try:
         patient = Patient.objects.get(patient_id=patient_id)
@@ -118,3 +121,4 @@ def patient_detail(request, patient_id):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+

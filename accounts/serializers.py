@@ -42,13 +42,13 @@ class ProfileSerializer(serializers.ModelSerializer):
         read_only_fields = ('register_date', 'user')
 
 
-class DoctorSerializer(serializers.ModelSerializer):
+class DoctorSerializer(ProfileSerializer):
     class Meta:
         model = Doctor
         fields = ProfileSerializer.Meta.fields + ('license_number',)
 
 
-class PatientSerializer(serializers.ModelSerializer):
+class PatientSerializer(ProfileSerializer):
     class Meta:
         model = Patient
         fields = ProfileSerializer.Meta.fields + ('height', 'weight', 'arm', 'abdominal',
