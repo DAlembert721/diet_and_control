@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-gst2fj9^2ozf42)4@om^x40%qn!-wtwqu&z_!%#i9t5@_a&h*s
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['diet-and-control.herokuapp.com']
 
 
 # Application definition
