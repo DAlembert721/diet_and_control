@@ -20,7 +20,7 @@ physical_activity_response = openapi.Response('Physical Activity description', P
                      responses={201: physical_activity_response})
 @swagger_auto_schema(method='get', responses={200: physical_activities_response})
 @permission_classes([IsAuthenticated])
-@api_view(['POST'])
+@api_view(['POST', 'GET'])
 def physical_activities_list(request):
     if request.method == 'POST':
         serializer = PhysicalActivitySerializer(request.data)
