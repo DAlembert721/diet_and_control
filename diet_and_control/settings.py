@@ -39,6 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'accounts.apps.AccountsConfig',
     'diets.apps.DietsConfig',
+    'habits.apps.HabitsConfig',
+    'diseases.apps.DiseasesConfig',
     'rest_framework',
     'corsheaders',
     'rest_framework_swagger',

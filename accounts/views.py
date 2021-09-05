@@ -72,7 +72,7 @@ def create_profiles(request, user_id):
     if request.method == 'POST':
         try:
             User.objects.get(id=user_id)
-        except:
+        except User.DoesNotExist:
             raise Http404
 
         serializer = ProfileSerializer(data=request.data)
@@ -111,7 +111,7 @@ def profile_detail(request, profile_id):
 @permission_classes([IsAuthenticated])
 def patient_detail(request, patient_id):
     try:
-        patient = Patient.objects.get(patient_id=patient_id)
+        patient = Patient.objects.get(user=patient_id)
     except Patient.DoesNotExist:
         raise Http404
 
