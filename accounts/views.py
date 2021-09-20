@@ -1,6 +1,5 @@
 from http.client import responses
 
-
 from django.http import Http404
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
@@ -10,8 +9,9 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from accounts.models import User, Profile, Patient
-from accounts.serializers import UserSerializer, ProfileSerializer, DoctorSerializer, PatientSerializer
+from accounts.models import User, Profile, Patient, PatientLog
+from accounts.serializers import UserSerializer, ProfileSerializer, DoctorSerializer, PatientSerializer, \
+    PatientLogSerializer
 
 users_response = openapi.Response('Users description', UserSerializer(many=True))
 user_response = openapi.Response('User description', UserSerializer)
@@ -21,6 +21,7 @@ doctors_response = openapi.Response('Doctors description', DoctorSerializer(many
 doctor_response = openapi.Response('Doctor description', DoctorSerializer)
 patients_response = openapi.Response('Patients description', PatientSerializer(many=True))
 patient_response = openapi.Response('Patient description', PatientSerializer)
+patient_logs_response = openapi.Response('Patient logs description', PatientLogSerializer(many=True))
 
 
 @swagger_auto_schema(methods=['post'], request_body=UserSerializer)
@@ -122,3 +123,16 @@ def patient_detail(request, patient_id):
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+@swagger_auto_schema(method='get', responses={200: patient_logs_response})
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def patient_logs_list(request, patient_id):
+    try:
+        patient = Patient.objects.get(user=patient_id)
+    except Patient.DoesNotExist:
+        raise Http404
+    if request.method == 'GET':
+        logs = PatientLog.objects.filter(patient=patient)
+        serializer = PatientLogSerializer(logs, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
