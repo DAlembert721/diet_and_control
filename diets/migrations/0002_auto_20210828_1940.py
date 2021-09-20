@@ -2,7 +2,7 @@
 
 from django.db import migrations
 
-from diets.utils.seed import create_data, create_meals_data
+from diets.utils.seed import create_meals_data
 
 
 class Migration(migrations.Migration):
@@ -12,6 +12,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(create_data),
-        migrations.RunPython(create_meals_data)
+        # migrations.RunPython(create_meals_data)
     ]

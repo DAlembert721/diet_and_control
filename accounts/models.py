@@ -78,6 +78,7 @@ class PatientLog(models.Model):
     hip = models.FloatField(null=False)
     imc = models.FloatField(null=False)
     tmb = models.FloatField(null=False)
+    date = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.patient.doi
