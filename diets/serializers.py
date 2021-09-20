@@ -55,6 +55,6 @@ class PersonalTreatmentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PersonalTreatment
-        fields = ('id', 'treatment_id', 'patient_id', 'doctor_id', 'start_date'
-                                                                   'end_date', 'active')
+        fields = ('id', 'treatment_id', 'patient_id', 'doctor_id', 'start_date',
+                  'end_date', 'active')
         read_only_fields = ('start_date', 'end_date', 'active')

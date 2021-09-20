@@ -78,4 +78,4 @@ class PatientLogSerializer(serializers.ModelSerializer):
         model = PatientLog
         fields = ('id', 'patient_id', 'height', 'weight', 'arm', 'abdominal',
                   'hip', 'imc', 'tmb', 'date')
-        read_only_fields = ('date')
+        read_only_fields = ('date',)

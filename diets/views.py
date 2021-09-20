@@ -17,7 +17,7 @@ treatment_response = openapi.Response('Treatment description', TreatmentSerializ
 personal_treatment_response = openapi.Response('PersonalTreatments description', PersonalTreatmentSerializer)
 
 
-@swagger_auto_schema(methods=['post'], request_body=TreatmentSerializer, responses={201: personal_treatment_response})
+@swagger_auto_schema(methods=['post'], request_body=PersonalTreatmentSerializer, responses={201: personal_treatment_response})
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def create_personal_treatment(request, doctor_id, patient_id):
