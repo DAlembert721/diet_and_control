@@ -2,7 +2,7 @@
 
 from django.db import migrations
 
-from diets.utils.seed import create_meals_data
+# from diets.utils.seed import create_meals_data
 
 
 class Migration(migrations.Migration):
