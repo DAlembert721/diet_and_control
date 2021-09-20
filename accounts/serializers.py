@@ -2,8 +2,9 @@ from django.utils.datetime_safe import date
 from rest_framework import serializers
 
 from django.contrib.auth.hashers import make_password
+from rest_framework.serializers import ModelSerializer
 
-from accounts.models import User, Profile, Doctor, Patient
+from accounts.models import User, Profile, Doctor, Patient, PatientLog
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -49,7 +50,31 @@ class DoctorSerializer(ProfileSerializer):
 
 
 class PatientSerializer(ProfileSerializer):
+    def update(self, instance, validated_data):
+        if instance.tmb is not None:
+            PatientLog(patient=instance, height=instance.height, weight=instance.weight,
+                       arm=instance.arm, abdominal=instance.abdominal, hip=instance.hip,
+                       imc=instance.imc, tmb=instance.tmb).save()
+        instance.height = validated_data.get('height', instance.height)
+        instance.weight = validated_data.get('weight', instance.weight)
+        instance.arm = validated_data.get('arm', instance.arm)
+        instance.abdominal = validated_data.get('abdominal', instance.abdominal)
+        instance.hip = validated_data.get('hip', instance.hip)
+        instance.imc = validated_data.get('imc', instance.imc)
+        instance.tmb = validated_data.get('tmb', instance.tmb)
+        instance.save()
+        return instance
+
     class Meta:
         model = Patient
         fields = ProfileSerializer.Meta.fields + ('height', 'weight', 'arm', 'abdominal',
                                                   'hip', 'imc', 'tmb')
+
+
+class PatientLogSerializer(serializers.ModelSerializer):
+    patient_id = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = PatientLog
+        fields = ('id', 'patient_id', 'height', 'weight', 'arm', 'abdominal',
+                  'hip', 'imc', 'tmb')
