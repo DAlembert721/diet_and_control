@@ -36,25 +36,27 @@ class TreatmentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Treatment
-        fields = ('id', 'treatment_number', 'carbohydrate', 'fat',
-                  'protein', 'illness_id', 'menus')
+        fields = ('id', 'treatment_number', 'illness_id', 'menus')
 
 
 class PersonalTreatmentSerializer(serializers.ModelSerializer):
     patient_id = serializers.IntegerField(read_only=True)
     doctor_id = serializers.IntegerField(read_only=True)
     treatment_id = serializers.IntegerField(read_only=True)
+    protein = serializers.FloatField(write_only=True)
+    carbohydrate = serializers.FloatField(write_only=True)
+    fat = serializers.FloatField(write_only=True)
 
     def create(self, validated_data):
         patient = Patient.objects.get(user=validated_data["patient_id"])
         doctor = Doctor.objects.get(user=validated_data["doctor_id"])
         validated_data["patient"] = patient
         validated_data["doctor"] = doctor
-        personal_treatment = personal_treatment_generator(patient, doctor)
+        personal_treatment = personal_treatment_generator(patient, doctor, validated_data["protein"], validated_data["carbohydrate"], validated_data["fat"])
         return personal_treatment
 
     class Meta:
         model = PersonalTreatment
         fields = ('id', 'treatment_id', 'patient_id', 'doctor_id', 'start_date',
-                  'end_date', 'active')
+                  'end_date', 'active', 'protein', 'carbohydrate', 'fat')
         read_only_fields = ('start_date', 'end_date', 'active')

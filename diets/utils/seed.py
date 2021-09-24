@@ -28,9 +28,9 @@ def create_meals_data(apps, schema_editor):
 
 
 def define_genre(genre):
-    if genre == 'M':
+    if genre == 'Masculino':
         return True
-    elif genre == 'F':
+    elif genre == 'Femenino':
         return False
 
 
@@ -44,20 +44,28 @@ def define_illness(illness):
 
 
 def create_treatments(apps, schema_editor):
-    df = pd.read_csv('diets/utils/TREATMENTS.csv', sep=',')
-    for i in range(df.shape[0] - 1):
-        treatment = Treatment.objects.get_or_create(treatment_number=int(df['PLAN'].values[i]))
+    df = pd.read_excel("diets/utils/meals_v2.xlsx", "patients_data")
+    treatments = []
+    for row in range(1):
+        data = np.array(df.loc[row])
+        treatments.append(data)
+    for treatment in treatments:
+        Treatment(treatment_number=int(treatment[8])).save()
 
 
 def create_base_treatments(apps, schema_editor):
-    df = pd.read_csv('diets/utils/TREATMENTS.csv', sep=',')
-    for i in range(df.shape[0] - 1):
-        treatment = Treatment.objects.get(treatment_number=int(df['PLAN'].values[i]))
-        illness = Illness.objects.get(id=define_illness(df['ENFERMEDAD'].values[i]))
-        BaseTreatment(years_old=df['EDAD'].values[i], genre=define_genre(df['GENERO'].values[i]),
-                      bmi=float(df['BMI'].values[i]), tmb=float(df['TMB'].values[i]),
-                      protein=float(df['PROT'].values[i]), carbohydrate=float(df['CARB'].values[i]),
-                      fat=float(df['GRA'].values[i]), illness=illness,
+    df = pd.read_excel("diets/utils/meals_v2.xlsx", "patients_data")
+    rows = []
+    for row in range(1):
+        data = np.array(df.loc[row])
+        rows.append(data)
+    for row in rows:
+        treatment = Treatment.objects.get(treatment_number=int(row[8]))
+        illness = Illness.objects.get(id=define_illness(row[7]))
+        BaseTreatment(years_old=row[0], genre=define_genre(row[1]),
+                      bmi=float(row[2]), tmb=float(row[3]),
+                      protein=float(row[4]), carbohydrate=float(row[5]),
+                      fat=float(row[6]), illness=illness,
                       treatment=treatment).save()
 
 
