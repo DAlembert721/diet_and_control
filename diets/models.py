@@ -6,18 +6,35 @@ from diseases.models import Illness
 
 
 class Treatment(models.Model):
-    description = models.CharField(max_length=250, null=False)
-    treatment_number = models.IntegerField(null=False)
+    # description = models.CharField(max_length=250, null=False)
+    treatment_number = models.IntegerField(null=False, unique=True)
+    # carbohydrate = models.FloatField(null=False)
+    # fat = models.FloatField(null=False)
+    # protein = models.FloatField(null=False)
+
+    def __str__(self):
+        return self.treatment_number
+
+    class Meta:
+        db_table = 'treatments'
+
+
+class BaseTreatment(models.Model):
+    years_old = models.CharField(max_length=4, null=False)
+    genre = models.BooleanField(null=False)
+    bmi = models.FloatField(null=False)
+    tmb = models.FloatField(null=False)
     carbohydrate = models.FloatField(null=False)
     fat = models.FloatField(null=False)
     protein = models.FloatField(null=False)
     illness = models.ForeignKey(Illness, null=True, on_delete=models.SET_NULL)
+    treatment = models.ForeignKey(Treatment, on_delete=models.CASCADE, null=False)
 
     def __str__(self):
-        return self.description
+        return f'Treatment: {self}'
 
     class Meta:
-        db_table = 'treatments'
+        db_table = 'base_treatments'
 
 
 class PersonalTreatment(models.Model):
