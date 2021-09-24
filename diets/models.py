@@ -94,10 +94,14 @@ class Meal(models.Model):
 
 class MealSchedule(models.Model):
     class Schedule(models.TextChoices):
-        BREAKFAST = 'BREAKFAST'
-        REFRESHMENT = 'REFRESHMENT'
-        LUNCH = 'LUNCH'
-        DINNER = 'DINNER'
+        BREAKFAST1 = 'BREAKFAST1'
+        BREAKFAST2 = 'BREAKFAST2'
+        SNACK = 'SNACK'
+        LUNCH1 = 'LUNCH1'
+        LUNCH2 = 'LUNCH2'
+        LUNCH3 = 'LUNCH3'
+        DINNER1 = 'DINNER1'
+        DINNER2 = 'DINNER2'
 
     meal = models.ForeignKey(Meal, on_delete=models.CASCADE, null=False)
     menu = models.ForeignKey(Menu, on_delete=models.CASCADE, null=False)

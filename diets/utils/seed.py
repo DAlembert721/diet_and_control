@@ -1,4 +1,4 @@
-from diets.models import Meal, Treatment, BaseTreatment, MealSchedule
+from diets.models import Meal, Treatment, BaseTreatment, MealSchedule, Menu
 from django.utils.datetime_safe import time
 import pandas as pd
 import numpy as np
@@ -9,7 +9,7 @@ from diseases.models import Illness
 def create_meals_data(apps, schema_editor):
     df = pd.read_excel("diets/utils/meals_v2.xlsx", "meals")
     meals = []
-    for row in range(34):
+    for row in range(35):
         data = np.array(df.loc[row])
         meals.append(data)
 
@@ -59,3 +59,34 @@ def create_base_treatments(apps, schema_editor):
                       protein=float(df['PROT'].values[i]), carbohydrate=float(df['CARB'].values[i]),
                       fat=float(df['GRA'].values[i]), illness=illness,
                       treatment=treatment).save()
+
+
+def create_menus_data(apps, schema_editor):
+    df = pd.read_excel("diets/utils/meals_v2.xlsx", "menus")
+    menus = []
+    for row in range(7):
+        data = np.array(df.loc[row])
+        menus.append(data)
+    for menu in menus:
+        Menu(
+           treatment_id=menu[0],
+           day=int(menu[1])
+        ).save()
+
+
+def create_meal_schedule(apps, schema_editor):
+    df = pd.read_excel("diets/utils/meals_v2.xlsx", "menus")
+    rows = []
+    for row in range(7):
+        data = np.array(df.loc[row])
+        rows.append(data)
+    for row in rows:
+        menu = Menu.objects.get(treatment_id=row[0], day=row[1])
+        MealSchedule(menu=menu, meal_id=row[2], schedule='BREAKFAST1').save()
+        MealSchedule(menu=menu, meal_id=row[3], schedule='BREAKFAST2').save()
+        MealSchedule(menu=menu, meal_id=row[4], schedule='LUNCH1').save()
+        MealSchedule(menu=menu, meal_id=row[5], schedule='LUNCH2').save()
+        MealSchedule(menu=menu, meal_id=row[6], schedule='LUNCH3').save()
+        MealSchedule(menu=menu, meal_id=row[7], schedule='DINNER1').save()
+        MealSchedule(menu=menu, meal_id=row[8], schedule='DINNER2').save()
+        MealSchedule(menu=menu, meal_id=row[9], schedule='SNACK').save()
