@@ -77,7 +77,9 @@ def list_illnesses_by_patient(request, patient_id):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-@swagger_auto_schema(method='post', responses={201: familiar_illness_response})
+@swagger_auto_schema(method='post',
+                     request_body=FamiliarIllnessSerializer,
+                     responses={201: familiar_illness_response})
 @permission_classes([IsAuthenticated])
 @api_view(['POST'])
 def create_patient_familiar_illnesses(request, patient_id, illness_id):

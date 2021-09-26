@@ -9,9 +9,9 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from accounts.models import Patient, Doctor
-from diets.models import Treatment, MealSchedule, Menu
+from diets.models import Treatment, MealSchedule, Menu, PersonalTreatmentTrace
 from diets.serializers import TreatmentSerializer, PersonalTreatmentSerializer, MealScheduleSerializer, \
-    GenerateTreatmentSerializer, TreatmentUpdateSerializer
+    GenerateTreatmentSerializer, TreatmentUpdateSerializer, PersonalTreatmentTraceSerializer
 
 treatments_response = openapi.Response('Treatments description', TreatmentSerializer(many=True))
 treatment_response = openapi.Response('Treatment description', TreatmentSerializer)
@@ -19,6 +19,10 @@ generate_treatment_response = openapi.Response('Generate Treatment description',
 personal_treatment_response = openapi.Response('PersonalTreatments description', PersonalTreatmentSerializer)
 meal_schedules_response = openapi.Response('MealScheduleResponse description', MealScheduleSerializer(many=True))
 update_treatment_response = openapi.Response('Update Treatment Response description', TreatmentUpdateSerializer)
+personal_treatment_trace_response = openapi.Response('PersonalTreatmentTrace Response description',
+                                                     PersonalTreatmentTraceSerializer)
+personal_treatment_traces_response = openapi.Response('PersonalTreatmentTraces Response description',
+                                                      PersonalTreatmentTraceSerializer(many=True))
 
 
 @swagger_auto_schema(methods=['post'], request_body=PersonalTreatmentSerializer,
@@ -91,7 +95,7 @@ def treatment_generator(request, patient_id):
                      request_body=TreatmentUpdateSerializer,
                      responses={200: update_treatment_response})
 @api_view(['PUT'])
-# @permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated])
 def update_treatment(request, treatment_id):
     try:
         treatment = Treatment.objects.get(id=treatment_id)
@@ -104,3 +108,34 @@ def update_treatment(request, treatment_id):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@swagger_auto_schema(methods=['put'],
+                     responses={200: personal_treatment_trace_response})
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def update_personal_treatment_trace(request, trace_id):
+    try:
+        trace = PersonalTreatmentTrace.objects.get(id=trace_id)
+    except PersonalTreatmentTrace.DoesNotExist:
+        raise Http404
+
+    if request.method == 'PUT':
+        trace.success = True
+        trace.save()
+        return Response(PersonalTreatmentSerializer(trace).data, status=status.HTTP_200_OK)
+
+
+@swagger_auto_schema(methods=['get'],
+                     responses={200: personal_treatment_traces_response})
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def list_personal_treatment_traces_by_personal_treatment(request, treatment_id):
+    try:
+        treatment = Treatment.objects.get(id=treatment_id)
+    except Treatment.DoesNotExist:
+        raise Http404
+    if request.method == 'GET':
+        traces = PersonalTreatmentTrace.objects.filter(treatment=treatment)
+        serializer = PersonalTreatmentTraceSerializer(traces, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)

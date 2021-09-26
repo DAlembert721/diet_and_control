@@ -2,7 +2,7 @@ from django.http import Http404
 from rest_framework import serializers
 
 from accounts.models import Patient, Doctor
-from diets.models import Treatment, Menu, Meal, PersonalTreatment, MealSchedule
+from diets.models import Treatment, Menu, Meal, PersonalTreatment, MealSchedule, PersonalTreatmentTrace
 from diets.utils.generator import create_treatment
 
 
@@ -78,6 +78,7 @@ class PersonalTreatmentSerializer(serializers.ModelSerializer):
             except Treatment.DoesNotExist:
                 raise Http404
         personal_treatment = PersonalTreatment.objects.create(patient=patient, doctor=doctor, treatment=treatment)
+        PersonalTreatmentTrace.create_trace(personal_treatment=personal_treatment)
         return personal_treatment
 
     class Meta:
@@ -88,7 +89,9 @@ class PersonalTreatmentSerializer(serializers.ModelSerializer):
 
 
 class TreatmentUpdateSerializer(TreatmentSerializer):
-    changes = serializers.DictField(write_only=True, child=serializers.IntegerField(allow_null=False), allow_empty=False,
+    changes = serializers.DictField(write_only=True,
+                                    child=serializers.IntegerField(allow_null=False),
+                                    allow_empty=False,
                                     required=True)
 
     def update(self, instance, validated_data):
@@ -99,3 +102,11 @@ class TreatmentUpdateSerializer(TreatmentSerializer):
     class Meta:
         model = Treatment
         fields = TreatmentSerializer.Meta.fields + ('changes',)
+
+
+class PersonalTreatmentTraceSerializer(serializers.ModelSerializer):
+    personal_treatment_id = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = PersonalTreatmentTrace
+        fields = ('id', 'day', 'success', 'personal_treatment_id')

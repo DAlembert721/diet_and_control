@@ -61,6 +61,11 @@ class PersonalTreatmentTrace(models.Model):
     def __str__(self):
         return 'PersonalTreatmentTrace ' + f'${self.personal_treatment.patient.first_name} ${self.personal_treatment.patient.last_name}-${self.day}-${self.success}'
 
+    @staticmethod
+    def create_trace(personal_treatment):
+        for i in range(7):
+            PersonalTreatmentTrace(day=i+1, personal_treatment=personal_treatment).save()
+
     class Meta:
         db_table = 'personal_treatment_traces'
 
