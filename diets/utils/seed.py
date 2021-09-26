@@ -1,5 +1,4 @@
 from diets.models import Meal, Treatment, BaseTreatment, MealSchedule, Menu
-from django.utils.datetime_safe import time
 import pandas as pd
 import numpy as np
 
@@ -50,7 +49,7 @@ def create_treatments(apps, schema_editor):
         data = np.array(df.loc[row])
         treatments.append(data)
     for treatment in treatments:
-        Treatment(treatment_number=int(treatment[8])).save()
+        Treatment(id=int(treatment[8])).save()
 
 
 def create_base_treatments(apps, schema_editor):
@@ -60,7 +59,7 @@ def create_base_treatments(apps, schema_editor):
         data = np.array(df.loc[row])
         rows.append(data)
     for row in rows:
-        treatment = Treatment.objects.get(treatment_number=int(row[8]))
+        treatment = Treatment.objects.get(id=int(row[8]))
         illness = Illness.objects.get(id=define_illness(row[7]))
         BaseTreatment(years_old=row[0], genre=define_genre(row[1]),
                       bmi=float(row[2]), tmb=float(row[3]),
@@ -90,11 +89,27 @@ def create_meal_schedule(apps, schema_editor):
         rows.append(data)
     for row in rows:
         menu = Menu.objects.get(treatment_id=row[0], day=row[1])
-        MealSchedule(menu=menu, meal_id=row[2], schedule='BREAKFAST1').save()
-        MealSchedule(menu=menu, meal_id=row[3], schedule='BREAKFAST2').save()
-        MealSchedule(menu=menu, meal_id=row[4], schedule='LUNCH1').save()
-        MealSchedule(menu=menu, meal_id=row[5], schedule='LUNCH2').save()
-        MealSchedule(menu=menu, meal_id=row[6], schedule='LUNCH3').save()
-        MealSchedule(menu=menu, meal_id=row[7], schedule='DINNER1').save()
-        MealSchedule(menu=menu, meal_id=row[8], schedule='DINNER2').save()
-        MealSchedule(menu=menu, meal_id=row[9], schedule='SNACK').save()
+        schedule = MealSchedule.objects.create(meal_id=row[2], schedule='BREAKFAST1')
+        menu.meal_schedules.add(schedule)
+        menu.save()
+        schedule = MealSchedule.objects.create(meal_id=row[3], schedule='BREAKFAST2')
+        menu.meal_schedules.add(schedule)
+        menu.save()
+        schedule = MealSchedule.objects.create(meal_id=row[4], schedule='LUNCH1')
+        menu.meal_schedules.add(schedule)
+        menu.save()
+        schedule = MealSchedule.objects.create(meal_id=row[5], schedule='LUNCH2')
+        menu.meal_schedules.add(schedule)
+        menu.save()
+        schedule = MealSchedule.objects.create(meal_id=row[6], schedule='LUNCH3')
+        menu.meal_schedules.add(schedule)
+        menu.save()
+        schedule = MealSchedule.objects.create(meal_id=row[7], schedule='DINNER1')
+        menu.meal_schedules.add(schedule)
+        menu.save()
+        schedule = MealSchedule.objects.create(meal_id=row[8], schedule='DINNER2')
+        menu.meal_schedules.add(schedule)
+        menu.save()
+        schedule = MealSchedule.objects.create(meal_id=row[9], schedule='SNACK')
+        menu.meal_schedules.add(schedule)
+        menu.save()

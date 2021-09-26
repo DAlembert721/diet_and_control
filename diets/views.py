@@ -9,15 +9,19 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from accounts.models import Patient, Doctor
-from diets.models import Treatment
-from diets.serializers import TreatmentSerializer, PersonalTreatmentSerializer
+from diets.models import Treatment, MealSchedule
+from diets.serializers import TreatmentSerializer, PersonalTreatmentSerializer, MealScheduleSerializer, \
+    GenerateTreatmentSerializer
 
 treatments_response = openapi.Response('Treatments description', TreatmentSerializer(many=True))
 treatment_response = openapi.Response('Treatment description', TreatmentSerializer)
+generate_treatment_response = openapi.Response('Generate Treatment description', GenerateTreatmentSerializer)
 personal_treatment_response = openapi.Response('PersonalTreatments description', PersonalTreatmentSerializer)
+meal_schedules_response = openapi.Response('MealScheduleResponse description', MealScheduleSerializer(many=True))
 
 
-@swagger_auto_schema(methods=['post'], request_body=PersonalTreatmentSerializer, responses={201: personal_treatment_response})
+@swagger_auto_schema(methods=['post'], request_body=PersonalTreatmentSerializer,
+                     responses={201: personal_treatment_response})
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def create_personal_treatment(request, doctor_id, patient_id):
@@ -51,3 +55,32 @@ def treatment_detail(request, treatment_id):
     if request.method == 'GET':
         serializer = TreatmentSerializer(treatment)
         return Response(serializer.data, status=status.HTTP_302_FOUND)
+
+
+@swagger_auto_schema(methods=['get'], responses={200: meal_schedules_response})
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def list_meals_schedules(request, schedule):
+    if request.method == 'GET':
+        if schedule is not None:
+            meal_schedules = MealSchedule.objects.filter(schedule=schedule)
+        else:
+            meal_schedules = MealSchedule.objects.all()
+        serializer = MealScheduleSerializer(meal_schedules, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+@swagger_auto_schema(methods=['POST'], responses={200: treatment_response})
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def treatment_generator(request, patient_id):
+    try:
+        patient = Patient.objects.get(patients_id=patient_id)
+    except Patient.DoesNotExist:
+        raise Http404
+    if request.method == 'POST':
+        serializer = GenerateTreatmentSerializer(data=request.data)
+        if serializer.is_valid():
+            treatment = treatment_generator(patient, serializer.protein, serializer.carbohydrate, serializer.fat)
+            return Response(GenerateTreatmentSerializer(treatment).data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

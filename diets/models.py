@@ -7,13 +7,13 @@ from diseases.models import Illness
 
 class Treatment(models.Model):
     # description = models.CharField(max_length=250, null=False)
-    treatment_number = models.IntegerField(null=False, unique=True)
+    # treatment_number = models.IntegerField(null=False, unique=True)
     # carbohydrate = models.FloatField(null=False)
     # fat = models.FloatField(null=False)
     # protein = models.FloatField(null=False)
 
     def __str__(self):
-        return self.treatment_number
+        return self.id
 
     class Meta:
         db_table = 'treatments'
@@ -104,11 +104,11 @@ class MealSchedule(models.Model):
         DINNER2 = 'DINNER2'
 
     meal = models.ForeignKey(Meal, on_delete=models.CASCADE, null=False)
-    menu = models.ForeignKey(Menu, on_delete=models.CASCADE, null=False)
+    menus = models.ManyToManyField(Menu, related_name='meal_schedules')
     schedule = models.CharField(max_length=50, null=False, choices=Schedule.choices)
 
     def __str__(self):
-        return self.schedule + ' ' + f'${self.meal.name} ${self.menu.day}'
+        return self.schedule + ' ' + f'${self.meal.name}'
 
     class Meta:
         db_table = 'meal_schedules'
