@@ -9,15 +9,16 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from accounts.models import Patient, Doctor
-from diets.models import Treatment, MealSchedule
+from diets.models import Treatment, MealSchedule, Menu
 from diets.serializers import TreatmentSerializer, PersonalTreatmentSerializer, MealScheduleSerializer, \
-    GenerateTreatmentSerializer
+    GenerateTreatmentSerializer, TreatmentUpdateSerializer
 
 treatments_response = openapi.Response('Treatments description', TreatmentSerializer(many=True))
 treatment_response = openapi.Response('Treatment description', TreatmentSerializer)
 generate_treatment_response = openapi.Response('Generate Treatment description', GenerateTreatmentSerializer)
 personal_treatment_response = openapi.Response('PersonalTreatments description', PersonalTreatmentSerializer)
 meal_schedules_response = openapi.Response('MealScheduleResponse description', MealScheduleSerializer(many=True))
+update_treatment_response = openapi.Response('Update Treatment Response description', TreatmentUpdateSerializer)
 
 
 @swagger_auto_schema(methods=['post'], request_body=PersonalTreatmentSerializer,
@@ -70,7 +71,7 @@ def list_meals_schedules(request, schedule):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-@swagger_auto_schema(methods=['POST'], responses={200: treatment_response})
+@swagger_auto_schema(methods=['post'], request_body=GenerateTreatmentSerializer, responses={200: treatment_response})
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def treatment_generator(request, patient_id):
@@ -83,4 +84,23 @@ def treatment_generator(request, patient_id):
         if serializer.is_valid():
             treatment = treatment_generator(patient, serializer.protein, serializer.carbohydrate, serializer.fat)
             return Response(GenerateTreatmentSerializer(treatment).data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@swagger_auto_schema(methods=['put'],
+                     request_body=TreatmentUpdateSerializer,
+                     responses={200: update_treatment_response})
+@api_view(['PUT'])
+# @permission_classes([IsAuthenticated])
+def update_treatment(request, treatment_id):
+    try:
+        treatment = Treatment.objects.get(id=treatment_id)
+    except Treatment.DoesNotExist:
+        raise Http404
+
+    if request.method == 'PUT':
+        serializer = TreatmentUpdateSerializer(treatment, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

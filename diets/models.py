@@ -1,5 +1,6 @@
 # Create your models here.
 from django.db import models
+from django.http import Http404
 
 from accounts.models import Patient, Doctor
 from diseases.models import Illness
@@ -109,6 +110,20 @@ class MealSchedule(models.Model):
 
     def __str__(self):
         return self.schedule + ' ' + f'${self.meal.name}'
+
+    @staticmethod
+    def update_meal_schedule(treatment_id, changes: dict):
+        for schedule, meal in changes.items():
+            try:
+                meal_schedule = MealSchedule.objects.get(id=schedule)
+            except MealSchedule.DoesNotExist:
+                raise Http404
+            try:
+                meal_schedule.meal = Meal.objects.get(id=meal)
+                meal_schedule.save()
+            except Meal.DoesNotExist:
+                raise Http404
+        return Treatment.objects.get(id=treatment_id)
 
     class Meta:
         db_table = 'meal_schedules'

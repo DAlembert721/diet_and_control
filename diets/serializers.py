@@ -3,7 +3,7 @@ from rest_framework import serializers
 
 from accounts.models import Patient, Doctor
 from diets.models import Treatment, Menu, Meal, PersonalTreatment, MealSchedule
-from diets.utils.generator import createTreatment
+from diets.utils.generator import create_treatment
 
 
 class MealSerializer(serializers.ModelSerializer):
@@ -60,7 +60,7 @@ class PersonalTreatmentSerializer(serializers.ModelSerializer):
     patient_id = serializers.IntegerField(read_only=True)
     doctor_id = serializers.IntegerField(read_only=True)
     treatment = TreatmentSerializer()
-    menus = serializers.ListField(write_only=True, allow_null=True,
+    menus = serializers.ListField(write_only=True, allow_empty=True,
                                   max_length=7,
                                   child=serializers.ListSerializer(child=serializers.IntegerField()))
     selected_treatment = serializers.IntegerField(default=0, write_only=True)
@@ -71,7 +71,7 @@ class PersonalTreatmentSerializer(serializers.ModelSerializer):
         validated_data["patient"] = patient
         validated_data["doctor"] = doctor
         if self.selected_treatment == 0:
-            treatment = createTreatment(self.menus)
+            treatment = create_treatment(self.menus)
         else:
             try:
                 treatment = Treatment.objects.get(id=self.selected_treatment)
@@ -85,3 +85,17 @@ class PersonalTreatmentSerializer(serializers.ModelSerializer):
         fields = ('id', 'treatment', 'patient_id', 'doctor_id', 'start_date',
                   'end_date', 'active', 'menus', 'selected_treatment')
         read_only_fields = ('start_date', 'end_date', 'active', 'treatment')
+
+
+class TreatmentUpdateSerializer(TreatmentSerializer):
+    changes = serializers.DictField(write_only=True, child=serializers.IntegerField(allow_null=False), allow_empty=False,
+                                    required=True)
+
+    def update(self, instance, validated_data):
+        treatment = MealSchedule.update_meal_schedule(treatment_id=instance.id,
+                                                      changes=validated_data["changes"])
+        return treatment
+
+    class Meta:
+        model = Treatment
+        fields = TreatmentSerializer.Meta.fields + ('changes',)

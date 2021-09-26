@@ -27,7 +27,7 @@ def treatment_generator(patient, protein, carbohydrate, fat):
     return Treatment.objects.get(id=prediction)
 
 
-def createTreatment(menus):
+def create_treatment(menus):
     treatment = Treatment.objects.create()
     for i, meal_schedules in dict(menus).items():
         menu = Menu.objects.create(day=i + 1, treatment=treatment)
