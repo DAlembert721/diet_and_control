@@ -60,7 +60,7 @@ class GenerateTreatmentSerializer(serializers.ModelSerializer):
 class PersonalTreatmentSerializer(serializers.ModelSerializer):
     patient_id = serializers.IntegerField(read_only=True)
     doctor_id = serializers.IntegerField(read_only=True)
-    treatment = TreatmentSerializer(read_only=True, allow_null=True)
+    treatment = TreatmentSerializer(read_only=True, allow_null=True, required=False)
     menus = serializers.ListField(write_only=True, allow_empty=True,
                                   max_length=7,
                                   child=serializers.ListSerializer(child=serializers.IntegerField()))
