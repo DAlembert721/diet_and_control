@@ -1,4 +1,5 @@
 from django.http import Http404
+from openpyxl.cell import read_only
 from rest_framework import serializers
 
 from accounts.models import Patient, Doctor
@@ -59,7 +60,7 @@ class GenerateTreatmentSerializer(serializers.ModelSerializer):
 class PersonalTreatmentSerializer(serializers.ModelSerializer):
     patient_id = serializers.IntegerField(read_only=True)
     doctor_id = serializers.IntegerField(read_only=True)
-    treatment = TreatmentSerializer()
+    treatment = TreatmentSerializer(read_only=True, allow_null=True)
     menus = serializers.ListField(write_only=True, allow_empty=True,
                                   max_length=7,
                                   child=serializers.ListSerializer(child=serializers.IntegerField()))
