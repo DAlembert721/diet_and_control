@@ -9,7 +9,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from accounts.models import Patient, Doctor
-from diets.models import Treatment, MealSchedule, Menu, PersonalTreatmentTrace
+from diets.models import Treatment, MealSchedule, Menu, PersonalTreatmentTrace, PersonalTreatment
 from diets.serializers import TreatmentSerializer, PersonalTreatmentSerializer, MealScheduleSerializer, \
     GenerateTreatmentSerializer, TreatmentUpdateSerializer, PersonalTreatmentTraceSerializer
 
@@ -139,3 +139,21 @@ def list_personal_treatment_traces_by_personal_treatment(request, treatment_id):
         traces = PersonalTreatmentTrace.objects.filter(treatment=treatment)
         serializer = PersonalTreatmentTraceSerializer(traces, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+@swagger_auto_schema(methods=['put'],
+                     responses={200: personal_treatment_response})
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def update_personal_treatment(request, personal_treatment_id):
+    try:
+        personal_treatment = PersonalTreatment.objects.get(id=personal_treatment_id)
+    except PersonalTreatment.DoesNotExist:
+        raise Http404
+
+    if request.method == 'PUT':
+        personal_treatment.active = False
+        personal_treatment.save()
+        serializer = PersonalTreatmentSerializer(personal_treatment)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+

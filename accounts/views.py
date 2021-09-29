@@ -1,5 +1,3 @@
-from http.client import responses
-
 from django.http import Http404
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
@@ -9,7 +7,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from accounts.models import User, Profile, Patient, PatientLog
+from accounts.models import User, Profile, Patient, PatientLog, Doctor
 from accounts.serializers import UserSerializer, ProfileSerializer, DoctorSerializer, PatientSerializer, \
     PatientLogSerializer
 
@@ -135,4 +133,19 @@ def patient_logs_list(request, patient_id):
     if request.method == 'GET':
         logs = PatientLog.objects.filter(patient=patient)
         serializer = PatientLogSerializer(logs, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+@swagger_auto_schema(method='get', responses={200: patients_response})
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def list_patients_by_doctor(request, doctor_id):
+    try:
+        doctor = Doctor.objects.get(user=doctor_id)
+    except Doctor.DoesNotExist:
+        raise Http404
+
+    if request.method == 'GET':
+        patients = Patient.objects.filter(doctor=doctor)
+        serializer = PatientLogSerializer(patients, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
