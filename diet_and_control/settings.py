@@ -89,8 +89,14 @@ WSGI_APPLICATION = 'diet_and_control.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        # 'ENGINE': 'django.db.backends.sqlite3',
+        # 'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'db0k2c5qmunq53',
+        'USER': 'hivvhvixewkjli',
+        'PASSWORD': 'c1ce402fb1f647f01c82166d832c64a3b8e20e99adeb3c71f4d008dcf75270ca',
+        'HOST': 'ec2-52-206-193-199.compute-1.amazonaws.com',
+        'PORT': '5432',
     }
 }
 
