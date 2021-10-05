@@ -19,9 +19,13 @@ familiar_illnesses_response = openapi.Response('Familiar Illnesses description',
 familiar_illness_response = openapi.Response('Familiar Illness description', FamiliarIllnessSerializer)
 
 
-@swagger_auto_schema(method='post', request_body=IllnessSerializer,
+@swagger_auto_schema(method='post',
+                     operation_description='Create new Illness',
+                     request_body=IllnessSerializer,
                      responses={201: illness_response})
-@swagger_auto_schema(method='get', responses={200: illnesses_response})
+@swagger_auto_schema(method='get',
+                     operation_description='Get all illnesses in the database',
+                     responses={200: illnesses_response})
 @permission_classes([IsAuthenticated])
 @api_view(['POST', 'GET'])
 def illnesses_list(request):
@@ -37,8 +41,11 @@ def illnesses_list(request):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-@swagger_auto_schema(method='delete')
-@swagger_auto_schema(method='post', responses={200: illnesses_response})
+@swagger_auto_schema(method='delete',
+                     operation_description='Un assign illness assigned to a patient')
+@swagger_auto_schema(method='post',
+                     operation_description='Assign an illness to user',
+                     responses={200: illnesses_response})
 @permission_classes([IsAuthenticated])
 @api_view(['POST', 'DELETE'])
 def patient_illnesses_assigment(request, patient_id, illness_id):
@@ -63,7 +70,9 @@ def patient_illnesses_assigment(request, patient_id, illness_id):
         return Response(status=status.HTTP_200_OK)
 
 
-@swagger_auto_schema(method='get', responses={200: illnesses_response})
+@swagger_auto_schema(method='get',
+                     operation_description='Get all illness of a patient',
+                     responses={200: illnesses_response})
 @permission_classes([IsAuthenticated])
 @api_view(['GET'])
 def list_illnesses_by_patient(request, patient_id):
@@ -78,6 +87,7 @@ def list_illnesses_by_patient(request, patient_id):
 
 
 @swagger_auto_schema(method='post',
+                     operation_description='Create illness for a familiar of a patient using patient_id and illness_id',
                      request_body=FamiliarIllnessSerializer,
                      responses={201: familiar_illness_response})
 @permission_classes([IsAuthenticated])
@@ -99,7 +109,8 @@ def create_patient_familiar_illnesses(request, patient_id, illness_id):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-@swagger_auto_schema(method='delete')
+@swagger_auto_schema(method='delete',
+                     operation_description='Delete illness of a familiar with familiar_illness_id')
 @permission_classes([IsAuthenticated])
 @api_view(['DELETE'])
 def delete_patient_familiar_illnesses(request, familiar_illness_id):
@@ -113,7 +124,9 @@ def delete_patient_familiar_illnesses(request, familiar_illness_id):
         return Response(status=status.HTTP_200_OK)
 
 
-@swagger_auto_schema(methods=['get'], responses={200: familiar_illnesses_response})
+@swagger_auto_schema(methods=['get'],
+                     operation_description='Get all illness of a familiar by patient id',
+                     responses={200: familiar_illnesses_response})
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def list_familiar_illnesses_by_patient(request, patient_id):

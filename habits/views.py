@@ -19,9 +19,13 @@ harmful_habits_response = openapi.Response('Harmful Habits description',
 harmful_habit_response = openapi.Response('Harmful Habit description', HarmfulHabitSerializer)
 
 
-@swagger_auto_schema(methods=['post'], request_body=PhysicalActivitySerializer,
+@swagger_auto_schema(methods=['post'],
+                     operation_description='Create a new physical activity',
+                     request_body=PhysicalActivitySerializer,
                      responses={201: physical_activity_response})
-@swagger_auto_schema(method='get', responses={200: physical_activities_response})
+@swagger_auto_schema(method='get',
+                     operation_description='Get all physical activities',
+                     responses={200: physical_activities_response})
 @permission_classes([IsAuthenticated])
 @api_view(['POST', 'GET'])
 def physical_activities_list(request):
@@ -37,8 +41,12 @@ def physical_activities_list(request):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-@swagger_auto_schema(method='delete')
-@swagger_auto_schema(method='post', responses={200: physical_activities_response})
+@swagger_auto_schema(method='delete',
+                     operation_description='Un assign a physical activity of a patient'
+                     )
+@swagger_auto_schema(method='post',
+                     operation_description='Assign a physical activity to patient',
+                     responses={200: physical_activities_response})
 @permission_classes([IsAuthenticated])
 @api_view(['POST', 'DELETE'])
 def patient_physical_activities_assignment(request, patient_id, physical_activity_id):
@@ -63,7 +71,9 @@ def patient_physical_activities_assignment(request, patient_id, physical_activit
         return Response(status=status.HTTP_200_OK)
 
 
-@swagger_auto_schema(method='get', responses={200: physical_activities_response})
+@swagger_auto_schema(method='get',
+                     operation_description='Get all physical activities of a patient',
+                     responses={200: physical_activities_response})
 @permission_classes([IsAuthenticated])
 @api_view(['GET'])
 def list_physical_activities_by_patient(request, patient_id):
@@ -77,9 +87,13 @@ def list_physical_activities_by_patient(request, patient_id):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-@swagger_auto_schema(methods=['post'], request_body=HarmfulHabitSerializer,
+@swagger_auto_schema(methods=['post'],
+                     operation_description='Create a new harmful habit',
+                     request_body=HarmfulHabitSerializer,
                      responses={201: harmful_habit_response})
-@swagger_auto_schema(method='get', responses={200: harmful_habits_response})
+@swagger_auto_schema(method='get',
+                     operation_description='Get all harmful habits',
+                     responses={200: harmful_habits_response})
 @permission_classes([IsAuthenticated])
 @api_view(['POST', 'GET'])
 def harmful_habits_list(request):
@@ -95,8 +109,10 @@ def harmful_habits_list(request):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-@swagger_auto_schema(method='delete')
-@swagger_auto_schema(method='post', responses={200: harmful_habits_response})
+@swagger_auto_schema(method='delete', operation_description='Un assign HarmfulHabit of a patient')
+@swagger_auto_schema(method='post',
+                     operation_description='Assign harmful habit to a patient',
+                     responses={200: harmful_habits_response})
 @permission_classes([IsAuthenticated])
 @api_view(['POST', 'DELETE'])
 def patient_harmful_habits_assigment(request, patient_id, harmful_habit_id):
@@ -120,7 +136,9 @@ def patient_harmful_habits_assigment(request, patient_id, harmful_habit_id):
         return Response(status=status.HTTP_200_OK)
 
 
-@swagger_auto_schema(method='get', responses={200: harmful_habits_response})
+@swagger_auto_schema(method='get',
+                     operation_description='Get all harmful habits of a patient',
+                     responses={200: harmful_habits_response})
 @permission_classes([IsAuthenticated])
 @api_view(['GET'])
 def list_harmful_habits_by_patient(request, patient_id):
