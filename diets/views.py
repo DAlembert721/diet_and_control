@@ -25,7 +25,9 @@ personal_treatment_traces_response = openapi.Response('PersonalTreatmentTraces R
                                                       PersonalTreatmentTraceSerializer(many=True))
 
 
-@swagger_auto_schema(methods=['post'], request_body=PersonalTreatmentSerializer,
+@swagger_auto_schema(methods=['post'],
+                     operation_description='Create personal treatment for a patient',
+                     request_body=PersonalTreatmentSerializer,
                      responses={201: personal_treatment_response})
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -48,7 +50,9 @@ def create_personal_treatment(request, doctor_id, patient_id):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-@swagger_auto_schema(methods=['get'], responses={302: treatment_response})
+@swagger_auto_schema(methods=['get'],
+                     operation_description='Get treatment detail by treatment Id',
+                     responses={302: treatment_response})
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def treatment_detail(request, treatment_id):
@@ -62,7 +66,9 @@ def treatment_detail(request, treatment_id):
         return Response(serializer.data, status=status.HTTP_302_FOUND)
 
 
-@swagger_auto_schema(methods=['get'], responses={200: meal_schedules_response})
+@swagger_auto_schema(methods=['get'],
+                     operation_description='Get list of meals by schedule (ex: LUNCH3)',
+                     responses={200: meal_schedules_response})
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def list_meals_schedules(request, schedule):
@@ -75,7 +81,10 @@ def list_meals_schedules(request, schedule):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-@swagger_auto_schema(methods=['post'], request_body=GenerateTreatmentSerializer, responses={200: treatment_response})
+@swagger_auto_schema(methods=['post'],
+                     operation_description='Generate treatment for a patient with patient_id',
+                     request_body=GenerateTreatmentSerializer,
+                     responses={200: treatment_response})
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def treatment_generator(request, patient_id):
@@ -92,6 +101,7 @@ def treatment_generator(request, patient_id):
 
 
 @swagger_auto_schema(methods=['put'],
+                     operation_description='Update meal schedule of a treatment',
                      request_body=TreatmentUpdateSerializer,
                      responses={200: update_treatment_response})
 @api_view(['PUT'])
@@ -111,6 +121,7 @@ def update_treatment(request, treatment_id):
 
 
 @swagger_auto_schema(methods=['put'],
+                     operation_description='Update personal treatment trace to ok',
                      responses={200: personal_treatment_trace_response})
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
@@ -127,21 +138,23 @@ def update_personal_treatment_trace(request, trace_id):
 
 
 @swagger_auto_schema(methods=['get'],
+                     operation_description='List all traces of personal treatment By personal treatment id',
                      responses={200: personal_treatment_traces_response})
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def list_personal_treatment_traces_by_personal_treatment(request, treatment_id):
     try:
-        treatment = Treatment.objects.get(id=treatment_id)
+        personal_treatment = PersonalTreatment.objects.get(id=treatment_id)
     except Treatment.DoesNotExist:
         raise Http404
     if request.method == 'GET':
-        traces = PersonalTreatmentTrace.objects.filter(treatment=treatment)
+        traces = PersonalTreatmentTrace.objects.filter(personal_treatment=personal_treatment)
         serializer = PersonalTreatmentTraceSerializer(traces, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 @swagger_auto_schema(methods=['put'],
+                     operation_description='Close personal_treatment changing active flag from true to False using personal treatment id',
                      responses={200: personal_treatment_response})
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
