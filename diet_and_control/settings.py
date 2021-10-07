@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'diets.apps.DietsConfig',
     'habits.apps.HabitsConfig',
     'diseases.apps.DiseasesConfig',
+    'communications.apps.CommunicationsConfig',
     'rest_framework',
     'corsheaders',
     'rest_framework_swagger',
