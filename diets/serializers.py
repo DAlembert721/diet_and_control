@@ -53,8 +53,7 @@ class GenerateTreatmentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Treatment
-        fields = ('id', 'menus',
-                  'protein', 'carbohydrate', 'fat')
+        fields = ('id', 'menus', 'protein', 'carbohydrate', 'fat')
 
 
 class PersonalTreatmentSerializer(serializers.ModelSerializer):
