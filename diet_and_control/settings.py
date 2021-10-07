@@ -49,7 +49,24 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework_swagger',
     'drf_yasg',
+    'channels',
 ]
+
+# Channels Configuration
+ASGI_APPLICATION = 'diet_and_control.asgi.application'
+
+CHANNEL_LAYERS = {
+    'default': {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        # "BACKEND": "channels.layers.InMemoryChannelLayer",
+        "CONFIG": {
+            "hosts": ['redis://:p27f9a326961d4a14e7919ae03eba5c652f1257ce22e193671861456889fb8ff0@ec2-3-210-124-92.compute-1.amazonaws.com:11119']
+        }
+    }
+}
+
+########################
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
