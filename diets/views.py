@@ -11,7 +11,8 @@ from rest_framework.response import Response
 from accounts.models import Patient, Doctor
 from diets.models import Treatment, MealSchedule, Menu, PersonalTreatmentTrace, PersonalTreatment
 from diets.serializers import TreatmentSerializer, PersonalTreatmentSerializer, MealScheduleSerializer, \
-    GenerateTreatmentSerializer, TreatmentUpdateSerializer, PersonalTreatmentTraceSerializer
+    GenerateTreatmentSerializer, TreatmentUpdateSerializer, PersonalTreatmentTraceSerializer, MenuSerializer
+from diets.utils.generator import treatment_generator
 
 treatments_response = openapi.Response('Treatments description', TreatmentSerializer(many=True))
 treatment_response = openapi.Response('Treatment description', TreatmentSerializer)
@@ -23,6 +24,7 @@ personal_treatment_trace_response = openapi.Response('PersonalTreatmentTrace Res
                                                      PersonalTreatmentTraceSerializer)
 personal_treatment_traces_response = openapi.Response('PersonalTreatmentTraces Response description',
                                                       PersonalTreatmentTraceSerializer(many=True))
+menu_response = openapi.Response('Menu Response description', MenuSerializer)
 
 
 @swagger_auto_schema(methods=['post'],
@@ -87,7 +89,7 @@ def list_meals_schedules(request, schedule):
                      responses={200: treatment_response})
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def treatment_generator(request, patient_id):
+def treatments_generator(request, patient_id):
     try:
         patient = Patient.objects.get(patients_id=patient_id)
     except Patient.DoesNotExist:
@@ -95,7 +97,8 @@ def treatment_generator(request, patient_id):
     if request.method == 'POST':
         serializer = GenerateTreatmentSerializer(data=request.data)
         if serializer.is_valid():
-            treatment = treatment_generator(patient, serializer.protein, serializer.carbohydrate, serializer.fat)
+            treatment = treatment_generator(patient, serializer.validated_data['protein'],
+                                            serializer.validated_data['carbohydrate'], serializer.validated_data['fat'])
             return Response(GenerateTreatmentSerializer(treatment).data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -170,3 +173,18 @@ def update_personal_treatment(request, personal_treatment_id):
         serializer = PersonalTreatmentSerializer(personal_treatment)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+
+@swagger_auto_schema(methods=['get'],
+                     operation_description='Get menu detail by id',
+                     responses={200: menu_response})
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def menu_detail(request, menu_id):
+    try:
+        menu = Menu.objects.get(id=menu_id)
+    except Menu.DoesNotExist:
+        raise Http404
+
+    if request.method == 'GET':
+        serializer = MenuSerializer(menu)
+        return Response(serializer.data, status=status.HTTP_302_FOUND)

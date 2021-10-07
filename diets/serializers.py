@@ -26,7 +26,7 @@ class MealScheduleSerializer(serializers.ModelSerializer):
 
 class MenuSerializer(serializers.ModelSerializer):
     treatment_id = serializers.IntegerField(read_only=True)
-    meal_schedules = MealScheduleSerializer(source='meal_schedule_set', read_only=True, many=True)
+    meal_schedules = MealScheduleSerializer(read_only=True, many=True)
 
     @staticmethod
     def meals(self):

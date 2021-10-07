@@ -79,12 +79,11 @@ def profiles_list(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def create_profiles(request, user_id):
+    try:
+        User.objects.get(id=user_id)
+    except User.DoesNotExist:
+        raise Http404
     if request.method == 'POST':
-        try:
-            User.objects.get(id=user_id)
-        except User.DoesNotExist:
-            raise Http404
-
         serializer = ProfileSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save(user_id=user_id)
