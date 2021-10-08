@@ -8,7 +8,7 @@ from diseases.models import Illness
 def create_meals_data(apps, schema_editor):
     df = pd.read_excel("diets/utils/meals_v2.xlsx", "meals")
     meals = []
-    for row in range(35):
+    for row in range(264):
         data = np.array(df.loc[row])
         meals.append(data)
 
@@ -38,14 +38,14 @@ def define_illness(illness):
         return 1
     elif illness == 'DIABETES':
         return 50
-    elif illness == 'HIPER':
+    elif illness == 'HIPERTENSION':
         return 100
 
 
 def create_treatments(apps, schema_editor):
     df = pd.read_excel("diets/utils/meals_v2.xlsx", "patients_data")
     treatments = []
-    for row in range(1):
+    for row in range(20):
         data = np.array(df.loc[row])
         treatments.append(data)
     for treatment in treatments:
@@ -55,7 +55,7 @@ def create_treatments(apps, schema_editor):
 def create_base_treatments(apps, schema_editor):
     df = pd.read_excel("diets/utils/meals_v2.xlsx", "patients_data")
     rows = []
-    for row in range(1):
+    for row in range(20):
         data = np.array(df.loc[row])
         rows.append(data)
     for row in rows:
@@ -71,7 +71,7 @@ def create_base_treatments(apps, schema_editor):
 def create_menus_data(apps, schema_editor):
     df = pd.read_excel("diets/utils/meals_v2.xlsx", "menus")
     menus = []
-    for row in range(7):
+    for row in range(140):
         data = np.array(df.loc[row])
         menus.append(data)
     for menu in menus:
@@ -84,7 +84,7 @@ def create_menus_data(apps, schema_editor):
 def create_meal_schedule(apps, schema_editor):
     df = pd.read_excel("diets/utils/meals_v2.xlsx", "menus")
     rows = []
-    for row in range(7):
+    for row in range(140):
         data = np.array(df.loc[row])
         rows.append(data)
     for row in rows:
