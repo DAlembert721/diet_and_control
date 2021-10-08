@@ -63,18 +63,19 @@ class PersonalTreatmentSerializer(serializers.ModelSerializer):
     menus = serializers.ListField(write_only=True, allow_empty=True,
                                   max_length=7,
                                   child=serializers.ListSerializer(child=serializers.IntegerField()))
-    selected_treatment = serializers.IntegerField(default=0, write_only=True)
+    selected_treatment = serializers.IntegerField(write_only=True)
 
     def create(self, validated_data):
         patient = Patient.objects.get(user=validated_data["patient_id"])
         doctor = Doctor.objects.get(user=validated_data["doctor_id"])
         validated_data["patient"] = patient
         validated_data["doctor"] = doctor
-        if self.selected_treatment == 0:
+        selected_treatment = validated_data.get("selected_treatment", 0)
+        if selected_treatment == 0:
             treatment = create_treatment(self.menus)
         else:
             try:
-                treatment = Treatment.objects.get(id=self.selected_treatment)
+                treatment = Treatment.objects.get(id=selected_treatment)
             except Treatment.DoesNotExist:
                 raise Http404
         personal_treatment = PersonalTreatment.objects.create(patient=patient, doctor=doctor, treatment=treatment)
