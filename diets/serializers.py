@@ -71,8 +71,9 @@ class PersonalTreatmentSerializer(serializers.ModelSerializer):
         validated_data["patient"] = patient
         validated_data["doctor"] = doctor
         selected_treatment = validated_data.get("selected_treatment", 0)
+        menus = validated_data.get("menus", [])
         if selected_treatment == 0:
-            treatment = create_treatment(self.menus)
+            treatment = create_treatment(menus)
         else:
             try:
                 treatment = Treatment.objects.get(id=selected_treatment)
