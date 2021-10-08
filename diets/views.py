@@ -17,7 +17,8 @@ from diets.utils.generator import treatment_generator
 treatments_response = openapi.Response('Treatments description', TreatmentSerializer(many=True))
 treatment_response = openapi.Response('Treatment description', TreatmentSerializer)
 generate_treatment_response = openapi.Response('Generate Treatment description', GenerateTreatmentSerializer)
-personal_treatment_response = openapi.Response('PersonalTreatments description', PersonalTreatmentSerializer)
+personal_treatment_response = openapi.Response('PersonalTreatment description', PersonalTreatmentSerializer)
+personal_treatments_response = openapi.Response('List of PersonalTreatments description', PersonalTreatmentSerializer(many=True))
 meal_schedules_response = openapi.Response('MealScheduleResponse description', MealScheduleSerializer(many=True))
 update_treatment_response = openapi.Response('Update Treatment Response description', TreatmentUpdateSerializer)
 personal_treatment_trace_response = openapi.Response('PersonalTreatmentTrace Response description',
@@ -188,3 +189,19 @@ def menu_detail(request, menu_id):
     if request.method == 'GET':
         serializer = MenuSerializer(menu)
         return Response(serializer.data, status=status.HTTP_302_FOUND)
+
+
+@swagger_auto_schema(methods=['get'],
+                     operation_description='Get all personal treatments of a patient',
+                     responses={200: personal_treatments_response})
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def list_personal_treatments_by_patient_id(request, patient_id):
+    try:
+        patient = Patient.objects.get(patients_id=patient_id)
+    except Patient.DoesNotExist:
+        raise Http404
+    if request.method == 'GET':
+        personal_treatments = PersonalTreatment.objects.filter(patient=patient)
+        serializer = PersonalTreatmentSerializer(personal_treatments, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)

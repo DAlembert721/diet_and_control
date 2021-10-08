@@ -2,7 +2,7 @@ from django.urls import path
 
 from diets.views import treatment_detail, create_personal_treatment, list_meals_schedules, \
     update_treatment, update_personal_treatment_trace, list_personal_treatment_traces_by_personal_treatment, \
-    update_personal_treatment, treatments_generator, menu_detail
+    update_personal_treatment, treatments_generator, menu_detail, list_personal_treatments_by_patient_id
 
 urlpatterns = [
     path('doctors/<int:doctor_id>/patients/<int:patient_id>/personal_treatments/',
@@ -20,4 +20,6 @@ urlpatterns = [
     path('personal_treatments/<int:personal_treatment_id>/', update_personal_treatment,
          name='update_personal_treatment'),
     path('menus/<int:menu_id>/', menu_detail, name='menu_detail'),
+    path('patients/<int:patient_id>/personal_treatments/',
+         list_personal_treatments_by_patient_id, name='list_personal_treatments_by_patient_id'),
 ]
