@@ -168,6 +168,6 @@ def list_patients_by_doctor(request, doctor_id):
         raise Http404
 
     if request.method == 'GET':
-        patients = Patient.objects.filter(doctor=doctor)
-        serializer = PatientLogSerializer(patients, many=True)
+        patients = Patient.objects.filter(personaltreatment__doctor=doctor)
+        serializer = PatientSerializer(patients, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
