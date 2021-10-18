@@ -14,7 +14,7 @@ class ChatConsumer(WebsocketConsumer):
         username = data['username']
         chat_id = data['chat_id']
         # user = User.objects.get(email=username)
-        profile = Profile.objects.get(user__email=username)
+        profile = Profile.objects.get(user__username=username)
         chat = Chat.objects.filter(id=chat_id)
 
         if not profile or not chat:
@@ -43,7 +43,7 @@ class ChatConsumer(WebsocketConsumer):
         author = data['from']
         text = data['text']
         chat_id = data['chat']
-        user = User.objects.get(email=author)
+        user = User.objects.get(username=author)
         # print(user)
         author_profile = Profile.objects.get(user_id=user.id)
         # print(author_profile)
@@ -70,7 +70,7 @@ class ChatConsumer(WebsocketConsumer):
 
         return {
             'id': str(message.id),
-            'author': message.author.user.email,
+            'author': message.author.user.username,
             'content': message.content,
             'created_at': str(message.created_at),
             'chat_id': str(message.chat.id)
