@@ -13,8 +13,8 @@ class ChatConsumer(WebsocketConsumer):
     def init_chat(self, data):
         username = data['username']
         chat_id = data['chat_id']
-        # user = User.objects.get(email=username)
-        profile = Profile.objects.get(user__username=username)
+        user = User.objects.get(username=username)
+        profile = Profile.objects.get(user=user)
         chat = Chat.objects.filter(id=chat_id)
 
         if not profile or not chat:
