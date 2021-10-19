@@ -11,9 +11,9 @@ from communications.models import Chat, Message
 class ChatConsumer(WebsocketConsumer):
 
     def init_chat(self, data):
-        username = data['username']
+        user = data['user']
         chat_id = data['chat_id']
-        user = User.objects.get(username=username)
+        user = User.objects.get(id=user)
         profile = Profile.objects.get(user=user)
         chat = Chat.objects.filter(id=chat_id)
 
@@ -24,9 +24,9 @@ class ChatConsumer(WebsocketConsumer):
             'command': 'init_chat'
         }
         if not profile:
-            content['error'] = 'Unable to get or create User with username: ' + username
+            content['error'] = 'Unable to get or create User with username: ' + user.username
             self.send_message(content)
-        content['success'] = 'Chatting in with success with username: ' + username
+        content['success'] = 'Chatting in with success with username: ' + user.username
         content['chat_id'] = chat_id
         self.send_message(content)
 
@@ -43,7 +43,7 @@ class ChatConsumer(WebsocketConsumer):
         author = data['from']
         text = data['text']
         chat_id = data['chat']
-        user = User.objects.get(username=author)
+        user = User.objects.get(id=author)
         # print(user)
         author_profile = Profile.objects.get(user_id=user.id)
         # print(author_profile)
@@ -70,7 +70,7 @@ class ChatConsumer(WebsocketConsumer):
 
         return {
             'id': str(message.id),
-            'author': message.author.user.username,
+            'author': message.author.user.id,
             'content': message.content,
             'created_at': str(message.created_at),
             'chat_id': str(message.chat.id)
