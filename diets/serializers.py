@@ -3,6 +3,7 @@ from openpyxl.cell import read_only
 from rest_framework import serializers
 
 from accounts.models import Patient, Doctor
+from communications.models import Chat
 from diets.models import Treatment, Menu, Meal, PersonalTreatment, MealSchedule, PersonalTreatmentTrace
 from diets.utils.generator import create_treatment
 
@@ -80,6 +81,7 @@ class PersonalTreatmentSerializer(serializers.ModelSerializer):
             except Treatment.DoesNotExist:
                 raise Http404
         personal_treatment = PersonalTreatment.objects.create(patient=patient, doctor=doctor, treatment=treatment)
+        Chat(sender=doctor, receiver=patient).save()
         PersonalTreatmentTrace.create_trace(personal_treatment=personal_treatment)
         return personal_treatment
 
