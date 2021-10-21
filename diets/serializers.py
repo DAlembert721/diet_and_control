@@ -112,3 +112,23 @@ class PersonalTreatmentTraceSerializer(serializers.ModelSerializer):
     class Meta:
         model = PersonalTreatmentTrace
         fields = ('id', 'day', 'success', 'personal_treatment_id')
+
+
+class UpdatePersonalTreatmentSerializer(serializers.ModelSerializer):
+    patient_id = serializers.IntegerField(read_only=True)
+    doctor_id = serializers.IntegerField(read_only=True)
+    treatment = TreatmentSerializer(read_only=True, allow_null=True, required=False)
+    menus = serializers.ListField(write_only=True, max_length=7, required=True,
+                                  child=serializers.ListSerializer(child=serializers.IntegerField()))
+
+    def update(self, instance, validated_data):
+        treatment = create_treatment(validated_data["menus"])
+        instance.treatment = treatment
+        instance.save()
+        return instance
+
+    class Meta:
+        model = PersonalTreatment
+        fields = ('id', 'treatment', 'patient_id', 'doctor_id', 'start_date',
+                  'end_date', 'active', 'menus')
+        read_only_fields = ('start_date', 'end_date', 'active', 'treatment')

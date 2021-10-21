@@ -21,14 +21,14 @@ chat_response = openapi.Response('chat description', ChatSerializer)
 @permission_classes([IsAuthenticated])
 def list_chats_by_user(request, user_id):
     try:
-        Profile.objects.get(user_id=user_id)
+        profile = Profile.objects.get(user_id=user_id)
     except Profile.DoesNotExist:
         raise Http404
 
     if request.method == 'GET':
         chats = []
-        chats += Chat.objects.filter(sender_id=user_id)
-        chats += Chat.objects.filter(receiver_id=user_id)
+        chats += Chat.objects.filter(sender=profile)
+        chats += Chat.objects.filter(receiver=profile)
         serializer = ChatSerializer(chats, many=True)
         return Response(serializer.data)
 

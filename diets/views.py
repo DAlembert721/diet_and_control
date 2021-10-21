@@ -11,14 +11,16 @@ from rest_framework.response import Response
 from accounts.models import Patient, Doctor
 from diets.models import Treatment, MealSchedule, Menu, PersonalTreatmentTrace, PersonalTreatment
 from diets.serializers import TreatmentSerializer, PersonalTreatmentSerializer, MealScheduleSerializer, \
-    GenerateTreatmentSerializer, TreatmentUpdateSerializer, PersonalTreatmentTraceSerializer, MenuSerializer
+    GenerateTreatmentSerializer, TreatmentUpdateSerializer, PersonalTreatmentTraceSerializer, MenuSerializer, \
+    UpdatePersonalTreatmentSerializer
 from diets.utils.generator import treatment_generator
 
 treatments_response = openapi.Response('Treatments description', TreatmentSerializer(many=True))
 treatment_response = openapi.Response('Treatment description', TreatmentSerializer)
 generate_treatment_response = openapi.Response('Generate Treatment description', GenerateTreatmentSerializer)
 personal_treatment_response = openapi.Response('PersonalTreatment description', PersonalTreatmentSerializer)
-personal_treatments_response = openapi.Response('List of PersonalTreatments description', PersonalTreatmentSerializer(many=True))
+personal_treatments_response = openapi.Response('List of PersonalTreatments description',
+                                                PersonalTreatmentSerializer(many=True))
 meal_schedules_response = openapi.Response('MealScheduleResponse description', MealScheduleSerializer(many=True))
 update_treatment_response = openapi.Response('Update Treatment Response description', TreatmentUpdateSerializer)
 personal_treatment_trace_response = openapi.Response('PersonalTreatmentTrace Response description',
@@ -26,6 +28,8 @@ personal_treatment_trace_response = openapi.Response('PersonalTreatmentTrace Res
 personal_treatment_traces_response = openapi.Response('PersonalTreatmentTraces Response description',
                                                       PersonalTreatmentTraceSerializer(many=True))
 menu_response = openapi.Response('Menu Response description', MenuSerializer)
+update_personal_treatment_response = openapi.Response('Update Personal Treatment Response',
+                                                      UpdatePersonalTreatmentSerializer)
 
 
 @swagger_auto_schema(methods=['post'],
@@ -157,24 +161,6 @@ def list_personal_treatment_traces_by_personal_treatment(request, treatment_id):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-@swagger_auto_schema(methods=['put'],
-                     operation_description='Close personal_treatment changing active flag from true to False using personal treatment id',
-                     responses={200: personal_treatment_response})
-@api_view(['PUT'])
-@permission_classes([IsAuthenticated])
-def update_personal_treatment(request, personal_treatment_id):
-    try:
-        personal_treatment = PersonalTreatment.objects.get(id=personal_treatment_id)
-    except PersonalTreatment.DoesNotExist:
-        raise Http404
-
-    if request.method == 'PUT':
-        personal_treatment.active = False
-        personal_treatment.save()
-        serializer = PersonalTreatmentSerializer(personal_treatment)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-
 @swagger_auto_schema(methods=['get'],
                      operation_description='Get menu detail by id',
                      responses={200: menu_response})
@@ -204,4 +190,31 @@ def list_personal_treatments_by_patient_id(request, patient_id):
     if request.method == 'GET':
         personal_treatments = PersonalTreatment.objects.filter(patient=patient)
         serializer = PersonalTreatmentSerializer(personal_treatments, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+@swagger_auto_schema(methods=['put'],
+                     operation_description='Update personal treatment by id',
+                     request_body=UpdatePersonalTreatmentSerializer,
+                     responses={200: update_personal_treatment_response})
+@swagger_auto_schema(methods=['patch'],
+                     operation_description='Close personal_treatment changing active flag from true to False using personal treatment id',
+                     responses={200: personal_treatment_response})
+@api_view(['PUT', 'PATCH'])
+@permission_classes([IsAuthenticated])
+def update_personal_treatment(request, personal_treatment_id):
+    try:
+        personal_treatment = PersonalTreatment.objects.get(id=personal_treatment_id)
+    except PersonalTreatment.DoesNotExist:
+        raise Http404
+    if request.method == 'PUT':
+        serializer = UpdatePersonalTreatmentSerializer(personal_treatment, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    if request.method == 'PATCH':
+        personal_treatment.active = False
+        personal_treatment.save()
+        serializer = PersonalTreatmentSerializer(personal_treatment)
         return Response(serializer.data, status=status.HTTP_200_OK)
