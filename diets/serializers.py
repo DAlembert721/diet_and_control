@@ -81,7 +81,7 @@ class PersonalTreatmentSerializer(serializers.ModelSerializer):
             except Treatment.DoesNotExist:
                 raise Http404
         personal_treatment = PersonalTreatment.objects.create(patient=patient, doctor=doctor, treatment=treatment)
-        Chat(sender=doctor, receiver=patient).save()
+        Chat.objects.get_or_create(sender=doctor, receiver=patient).save()
         PersonalTreatmentTrace.create_trace(personal_treatment=personal_treatment)
         return personal_treatment
 
