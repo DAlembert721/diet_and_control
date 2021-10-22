@@ -29,7 +29,7 @@ def treatment_generator(patient, protein, carbohydrate, fat):
 
 def create_treatment(menus):
     treatment = Treatment.objects.create()
-    for i, meal_schedules in dict(menus).items():
+    for i, meal_schedules in enumerate(menus):
         menu = Menu.objects.create(day=i + 1, treatment=treatment)
         for meal_schedule_id in meal_schedules:
             try:
