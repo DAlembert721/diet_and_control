@@ -14,7 +14,7 @@ def base_treatments_data():
 
 def treatments_data():
     treatments = Treatment.objects.all()
-    return [treatment.id for treatment in treatments]
+    return [treatment.id for treatment in treatments][:20]
 
 
 def treatment_generator(patient, protein, carbohydrate, fat):
