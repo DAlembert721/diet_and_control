@@ -8,7 +8,7 @@ from diseases.models import Illness
 def create_meals_data(apps, schema_editor):
     df = pd.read_excel("diets/utils/meals_v2.xlsx", "meals")
     meals = []
-    for row in range(264):
+    for row in range(259):
         data = np.array(df.loc[row])
         meals.append(data)
 
