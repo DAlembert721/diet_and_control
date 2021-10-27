@@ -60,7 +60,7 @@ CHANNEL_LAYERS = {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         # "BACKEND": "channels.layers.InMemoryChannelLayer",
         "CONFIG": {
-            "hosts": ['redis://:p27f9a326961d4a14e7919ae03eba5c652f1257ce22e193671861456889fb8ff0@ec2-3-210-124-92.compute-1.amazonaws.com:11119']
+            "hosts": ['redis://:p27f9a326961d4a14e7919ae03eba5c652f1257ce22e193671861456889fb8ff0@ec2-18-211-194-22.compute-1.amazonaws.com:6679']
         }
     }
 }
