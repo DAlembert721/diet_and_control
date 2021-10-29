@@ -124,7 +124,10 @@ def profile_detail(request, profile_id):
 @swagger_auto_schema(method='patch',
                      operation_description='Update patient profile',
                      request_body=PatientSerializer, responses={200: patient_response})
-@api_view(['PATCH'])
+@swagger_auto_schema(method='get',
+                     operation_description='Get patient profile by patient id',
+                     responses={302: patient_response})
+@api_view(['PATCH', 'GET'])
 @permission_classes([IsAuthenticated])
 def patient_detail(request, patient_id):
     try:
@@ -138,6 +141,10 @@ def patient_detail(request, patient_id):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    if request.method == 'GET':
+        serializer = PatientSerializer(patient)
+        return  Response(serializer.data, status=status.HTTP_302_FOUND)
+
 
 
 @swagger_auto_schema(method='get',
