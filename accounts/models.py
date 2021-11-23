@@ -85,3 +85,15 @@ class PatientLog(models.Model):
 
     class Meta:
         db_table = 'patient_logs'
+
+
+class PrivacyTermsAccept(models.Model):
+    patient = models.ForeignKey(Patient, on_delete=models.CASCADE, null=False)
+    accept = models.BooleanField(default=True)
+    date = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.patient.first_name + ' ' + self.patient.last_name + ':OK'
+
+    class Meta:
+        db_table = 'privacy_terms_accept'

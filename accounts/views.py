@@ -7,9 +7,9 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from accounts.models import User, Profile, Patient, PatientLog, Doctor
+from accounts.models import User, Profile, Patient, PatientLog, Doctor, PrivacyTermsAccept
 from accounts.serializers import UserSerializer, ProfileSerializer, DoctorSerializer, PatientSerializer, \
-    PatientLogSerializer
+    PatientLogSerializer, PrivacyTermsAcceptSerializer
 
 users_response = openapi.Response('Users description', UserSerializer(many=True))
 user_response = openapi.Response('User description', UserSerializer)
@@ -20,6 +20,7 @@ doctor_response = openapi.Response('Doctor description', DoctorSerializer)
 patients_response = openapi.Response('Patients description', PatientSerializer(many=True))
 patient_response = openapi.Response('Patient description', PatientSerializer)
 patient_logs_response = openapi.Response('Patient logs description', PatientLogSerializer(many=True))
+accept_term_response = openapi.Response('Accept Term description', PrivacyTermsAcceptSerializer)
 
 
 @swagger_auto_schema(methods=['post'],
@@ -143,8 +144,7 @@ def patient_detail(request, patient_id):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     if request.method == 'GET':
         serializer = PatientSerializer(patient)
-        return  Response(serializer.data, status=status.HTTP_302_FOUND)
-
+        return Response(serializer.data, status=status.HTTP_302_FOUND)
 
 
 @swagger_auto_schema(method='get',
@@ -178,3 +178,30 @@ def list_patients_by_doctor(request, doctor_id):
         patients = Patient.objects.filter(personaltreatment__doctor=doctor)
         serializer = PatientSerializer(patients, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+@swagger_auto_schema(methods=['post'],
+                     operation_description='Approve privacy terms of a user',
+                     request_body=PrivacyTermsAcceptSerializer,
+                     responses={201: accept_term_response})
+@swagger_auto_schema(methods=['get'],
+                     operation_description='Get privacy terms of a user',
+                     responses={302: accept_term_response})
+@api_view(['POST', 'GET'])
+def approve_terms(request, profile_id):
+    try:
+        profile = Profile.objects.get(user=profile_id)
+    except Profile.DoesNotExist:
+        raise Http404
+
+    if request.method == 'POST':
+        serializer = PrivacyTermsAcceptSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(user_id=profile_id)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    elif request.method == 'GET':
+        term = PrivacyTermsAccept.objects.filter(profile=profile)[0]
+        serializer = PrivacyTermsAcceptSerializer(term)
+        return Response(serializer.data, status=status.HTTP_302_FOUND)
+

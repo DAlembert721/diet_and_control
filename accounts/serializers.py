@@ -4,7 +4,7 @@ from rest_framework import serializers
 from django.contrib.auth.hashers import make_password
 from rest_framework.serializers import ModelSerializer
 
-from accounts.models import User, Profile, Doctor, Patient, PatientLog
+from accounts.models import User, Profile, Doctor, Patient, PatientLog, PrivacyTermsAccept
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -79,3 +79,11 @@ class PatientLogSerializer(serializers.ModelSerializer):
         fields = ('id', 'patient_id', 'height', 'weight', 'arm', 'abdominal',
                   'hip', 'imc', 'tmb', 'date')
         read_only_fields = ('date',)
+
+
+class PrivacyTermsAcceptSerializer(serializers.ModelSerializer):
+    patient_id = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = PrivacyTermsAccept
+        fields = ('id', 'patient_id', 'date', 'accept')
