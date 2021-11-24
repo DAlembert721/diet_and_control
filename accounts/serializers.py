@@ -82,8 +82,9 @@ class PatientLogSerializer(serializers.ModelSerializer):
 
 
 class PrivacyTermsAcceptSerializer(serializers.ModelSerializer):
-    patient_id = serializers.IntegerField(read_only=True)
+    profile_id = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = PrivacyTermsAccept
-        fields = ('id', 'patient_id', 'date', 'accept')
+        fields = ('id', 'profile_id', 'date', 'accept', 'profile')
+        read_only_fields = ('profile',)

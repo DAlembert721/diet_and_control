@@ -197,11 +197,13 @@ def approve_terms(request, profile_id):
     if request.method == 'POST':
         serializer = PrivacyTermsAcceptSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save(user_id=profile_id)
+            serializer.save(profile=profile)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     elif request.method == 'GET':
-        term = PrivacyTermsAccept.objects.filter(profile=profile)[0]
-        serializer = PrivacyTermsAcceptSerializer(term)
+        term = PrivacyTermsAccept.objects.filter(profile=profile)
+        if not len(term):
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        serializer = PrivacyTermsAcceptSerializer(term[0])
         return Response(serializer.data, status=status.HTTP_302_FOUND)
 
